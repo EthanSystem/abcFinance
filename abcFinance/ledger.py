@@ -74,7 +74,7 @@ class Ledger:
             self.accounts[name] = account
 
     def make_asset_accounts(self, names):
-        """ Create stock accounts.
+        """ Create stock accounts. #BUG注释错误，后续的也是这样。
 
         Args:
             names, list of names for the accounts
@@ -119,7 +119,7 @@ class Ledger:
         self.residual_account = account
 
     def book(self, debit, credit, text=""):
-        """ Book a transaction.
+        """ Book a transaction.  记录一笔交易
 
         Arguments:
             debit, list of tuples ('account', amount)
@@ -139,7 +139,7 @@ class Ledger:
 
         for name, value in debit:
             account = self.accounts[name]
-            account.debit += value
+            account.debit += value  # 借方累加
             if name in self.asset_accounts:
                 side, _ = account.get_balance()
                 assert side != AccountSide.CREDIT
@@ -272,6 +272,9 @@ class Ledger:
         return debitsum == creditsum
 
     def draw_balance_sheet(self, title="Balance Sheet", height = None, width=350, write_file=False):
+        """
+        可视化资产负债表
+        """
         total_assets = 0
         asset_accounts = list()
         liability_accounts = list()

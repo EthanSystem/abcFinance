@@ -26,6 +26,9 @@ class Account:
         self.credit = 0
 
     def get_balance(self):
+        """
+        获得余额
+        """
         debitsum = self.debit
         creditsum = self.credit
         if debitsum > creditsum:
