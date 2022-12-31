@@ -19,7 +19,7 @@ class AccountSide(Enum):
 
 
 class Account:
-    """ An account has two lists of debit and credit bookings 包括借方表、贷方表"""
+    """ An account has two lists of debit and credit bookings 账户，包括借方表、贷方表"""
 
     def __init__(self):
         self.debit = 0
@@ -27,11 +27,11 @@ class Account:
 
     def get_balance(self):
         """
-        获得余额
+        比较单个账户里的借方与贷方金额，确定帐户余额位置与金额
         """
         debitsum = self.debit
         creditsum = self.credit
-        if debitsum > creditsum:  # 如果
+        if debitsum > creditsum:
             return (AccountSide.DEBIT, debitsum - creditsum)
         elif debitsum == creditsum:
             return(AccountSide.BALANCED, 0)
