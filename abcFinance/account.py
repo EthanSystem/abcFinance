@@ -27,7 +27,7 @@ class Account:
 
     def get_balance(self):
         """
-        比较单个账户里的借方与贷方金额，确定帐户余额位置与金额
+        更新资产负债表。通过比较单个账户科目里的借方与贷方金额，确定帐户余额位置位于「借」或者「贷」与相应的金额
         """
         debitsum = self.debit
         creditsum = self.credit

@@ -119,7 +119,7 @@ class Ledger:
         self.residual_account = account
 
     def book(self, debit, credit, text=""):
-        """ Book a transaction.  记录一笔交易
+        """ Book a transaction.  记录一笔明细
 
         Arguments:
             debit, list of tuples ('account', amount)
@@ -140,7 +140,7 @@ class Ledger:
         for name, value in debit:
             account = self.accounts[name]  # 获取科目名
             account.debit += value  # 借方累加
-            if name in self.asset_accounts:
+            if name in self.asset_accounts:  # 记录资产负债表所在边
                 side, _ = account.get_balance()
                 assert side != AccountSide.CREDIT
             elif name in self.liability_accounts:
@@ -158,14 +158,14 @@ class Ledger:
             elif name in self.liability_accounts:
                 side, _ = account.get_balance()
                 assert side != AccountSide.DEBIT
-            sum_credit += value#累加贷方
+            sum_credit += value  # 累加贷方
 
         assert sum_debit == sum_credit
 
         self.booking_history.append((debit, credit, text))
 
     def book_end_of_period(self):
-        """ Close flow accounts and credit/debit residual (equity) account 结转流量、借贷账户 """
+        """ Close flow accounts and credit/debit residual (equity) account 结转当期流量、借贷账户于期末 """
         profit = 0
         debit_accounts = []
         credit_accounts = []
