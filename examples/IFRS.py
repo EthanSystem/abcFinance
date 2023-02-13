@@ -5,6 +5,8 @@ Created on Wed May  2 15:23:48 2018
 This file demonstrates how a generic IFRS-style balance sheet and profit and loss statement can be implemented in abcFinance
 
 @author: christoph
+
+国际财务报告准则
 """
 
 from abcFinance import Ledger, Account, AccountSide

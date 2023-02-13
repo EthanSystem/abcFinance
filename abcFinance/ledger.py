@@ -74,7 +74,7 @@ class Ledger:
             self.accounts[name] = account
 
     def make_asset_accounts(self, names):
-        """ Create stock accounts.
+        """ Create stock accounts. #BUG注释错误，后续的也是这样。
 
         Args:
             names, list of names for the accounts
@@ -119,7 +119,7 @@ class Ledger:
         self.residual_account = account
 
     def book(self, debit, credit, text=""):
-        """ Book a transaction.
+        """ Book a transaction.  记录一笔明细
 
         Arguments:
             debit, list of tuples ('account', amount)
@@ -138,9 +138,9 @@ class Ledger:
         sum_credit = 0
 
         for name, value in debit:
-            account = self.accounts[name]
-            account.debit += value
-            if name in self.asset_accounts:
+            account = self.accounts[name]  # 获取科目名
+            account.debit += value  # 借方累加
+            if name in self.asset_accounts:  # 记录资产负债表所在边
                 side, _ = account.get_balance()
                 assert side != AccountSide.CREDIT
             elif name in self.liability_accounts:
@@ -151,30 +151,30 @@ class Ledger:
         for name, value in credit:
             assert value >= 0
             account = self.accounts[name]
-            account.credit += value
+            account.credit += value  # 贷方累加
             if name in self.asset_accounts:
                 side, _ = account.get_balance()
                 assert side != AccountSide.CREDIT
             elif name in self.liability_accounts:
                 side, _ = account.get_balance()
                 assert side != AccountSide.DEBIT
-            sum_credit += value
+            sum_credit += value  # 累加贷方
 
         assert sum_debit == sum_credit
 
         self.booking_history.append((debit, credit, text))
 
     def book_end_of_period(self):
-        """ Close flow accounts and credit/debit residual (equity) account """
+        """ Close flow accounts and credit/debit residual (equity) account 结转当期流量、借贷账户于期末 """
         profit = 0
         debit_accounts = []
         credit_accounts = []
         for name, account in self.flow_accounts.items():
             side, balance = account.get_balance()
             if balance > 0:
-                if side == AccountSide.DEBIT:
+                if side == AccountSide.DEBIT:  # 如果余额出现在借方，则说明损失，因此收益减少其余额量，反之亦然
                     profit -= balance
-                    credit_accounts.append((name, balance))
+                    credit_accounts.append((name, balance))  # 贷方账户追加一笔余额
                 else:
                     profit += balance
                     debit_accounts.append((name, balance))
@@ -271,7 +271,10 @@ class Ledger:
             creditsum += account.credit
         return debitsum == creditsum
 
-    def draw_balance_sheet(self, title="Balance Sheet", height = None, width=350, write_file=False):
+    def draw_balance_sheet(self, title="Balance Sheet", height=None, width=350, write_file=False):
+        """
+        可视化资产负债表
+        """
         total_assets = 0
         asset_accounts = list()
         liability_accounts = list()
@@ -292,32 +295,35 @@ class Ledger:
         if height is None:
             height = int(total_assets*0.8)
         plot = Scene(height=height+30, width=width+10)
-        plot.add(Text(origin=(box_width,0), text=title, size=19, align_vertical="hanging"))
+        plot.add(Text(origin=(box_width, 0), text=title,
+                 size=19, align_vertical="hanging"))
         left_corner = (5, 25)
         for name, balance in asset_accounts:
-            if name=="Neg. Equity":
+            if name == "Neg. Equity":
                 plot.add(Textbox(left_corner, int(height*(balance/total_assets)), box_width,
-                                name + " " + str(int(balance)),
-                                color = (255, 102, 102)))
+                                 name + " " + str(int(balance)),
+                                 color=(255, 102, 102)))
             else:
                 plot.add(Textbox(left_corner, int(height*(balance/total_assets)), box_width,
-                                name + " " + str(int(balance)),
-                                color = (153, 204, 255)))
-            left_corner = (5, left_corner[1] + int(height*(balance/total_assets)))
+                                 name + " " + str(int(balance)),
+                                 color=(153, 204, 255)))
+            left_corner = (5, left_corner[1] +
+                           int(height*(balance/total_assets)))
 
         left_corner = (box_width+5, 25)
         for name, balance in liability_accounts:
-            if name==self.residual_account_name:
+            if name == self.residual_account_name:
                 plot.add(Textbox(left_corner, int(height*(balance/total_assets)), box_width,
-                                name + " " + str(int(balance)),
-                                color = (204, 255, 204)))
+                                 name + " " + str(int(balance)),
+                                 color=(204, 255, 204)))
             else:
                 plot.add(Textbox(left_corner, int(height*(balance/total_assets)), box_width,
-                                name + " " + str(int(balance)),
-                                color = (255, 204, 204)))
-            left_corner = (box_width+5, left_corner[1] + int(height*(balance/total_assets)))
+                                 name + " " + str(int(balance)),
+                                 color=(255, 204, 204)))
+            left_corner = (
+                box_width+5, left_corner[1] + int(height*(balance/total_assets)))
 
         if write_file:
             plot.write_svg()
-        
+
         return ' '.join(plot.strarray())
